@@ -1,0 +1,172 @@
+<div class="wrapper">
+  <main class="p-2">
+    <p-table
+      [value]="extensions"
+      styleClass="p-datatable-sm p-datatable-striped"
+      [resizableColumns]="true"
+      [scrollable]="true"
+      scrollHeight="flex">
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="text-center" style="min-width: 40px; max-width: 40px;">
+            <div class="flex justify-content-center align-items-center">
+              <button pButton type="button"
+                (click)="showRunningExtensionsView()"
+                class="p-0 p-button-text"
+                title="Show running extensions">
+                <i class="pi pi-spin pi-cog"></i>
+              </button>
+            </div>
+          </th>
+          <th pResizableColumn style="width: 310px;">
+            <div class="flex align-items-center">
+              <span class="ml-2">Name</span>
+            </div>
+          </th>
+          <th pResizableColumn style="width: 22%;">
+            <div class="flex align-items-center">
+              <button pButton type="button"
+                (click)="installedExtensions()"
+                class="p-button-text"
+                title="Show @installed extensions">
+                <i class="pi pi-search"></i>
+              </button>
+              <span class="ml-2">Actions</span>
+              <p-toggleButton [onIcon]="'pi pi-filter-slash'" [offIcon]="'pi pi-filter'" [(ngModel)]="showFilters" class="ml-auto"></p-toggleButton>
+              <button pButton type="button" (click)="reloadExtension()" class="ml-2 px-2 py-2" title="Refresh"><i class="pi pi-refresh"></i></button>
+            </div>
+          </th>
+          <th pResizableColumn style="width: 10%;"><span class="ml-2">ID</span></th>
+          <th pResizableColumn style="width: 37%;">
+            <div class="flex align-items-center">
+              <button pButton type="button"
+                (click)="exploreExtensionsPath()"
+                class="p-button-text"
+                title="Open extensions folder in file explorer">
+                <i class="pi pi-folder-open"></i>
+              </button>
+              <span class="ml-2">Extension Path</span>
+            </div>
+          </th>
+        </tr>
+        <tr *ngIf="showFilters">
+          <th class="text-center">&nbsp;</th>
+          <th>
+            <div class="flex justify-content-between align-items-center" style="width: 100%;">
+              <p-columnFilter type="text" matchMode="contains" field="name" [attr.style]="'width: 100%;'"></p-columnFilter>
+            </div>
+          </th>
+          <th>&nbsp;</th>
+          <th>
+            <div class="flex justify-content-between align-items-center" style="width: 100%;">
+              <p-columnFilter type="text" matchMode="contains" field="id" [attr.style]="'width: 100%;'"></p-columnFilter>
+            </div>
+          </th>
+          <th>
+            <div class="flex justify-content-between align-items-center" style="width: 100%;">
+              <p-columnFilter type="text" matchMode="contains" field="extensionPath" [attr.style]="'width: 100%;'"></p-columnFilter>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-extension>
+        <tr>
+          <td class="text-center">
+            <ng-container *ngIf="extension.active; else notActive">
+              <i style="color: var(--green-500)" class="pi pi-circle-fill"></i>
+            </ng-container>
+            <ng-template #notActive>
+              &nbsp;
+            </ng-template>
+          </td>
+          <td>
+            <div class="flex align-items-center">
+              <img class="ml-2" [attr.src]="extension.icon" width="42" height="42">
+              <b class="ml-4">{{ extension.name }}</b>
+              <small class="ml-2">{{ extension.packageJSON.version }}</small>
+              <p-tag *ngIf="extension.packageJSON.preview" styleClass="ml-2 font-italic" value="Preview" [rounded]="true" severity="warning"></p-tag>
+            </div>
+          </td>
+          <td>
+            <div class="flex align-items-center">
+              <button pButton type="button"
+                (click)="searchExtension(extension)"
+                class="p-button-text"
+                title="Search extension">
+                <i class="pi pi-search"></i>
+              </button>
+              <button pButton type="button"
+                [disabled]="extension?.packageJSON?.isBuiltin"
+                (click)="showMarketplaceEntry(extension)"
+                class="p-button-text"
+                title="Open VSCode Marketplace entry">
+                <i class="pi pi-microsoft"></i>
+              </button>
+              <button pButton type="button"
+                [disabled]="doesNotHaveRepository(extension)"
+                (click)="showExtensionRepository(extension)"
+                class="p-button-text"
+                title="Open repository">
+                <i class="pi pi-github"></i>
+              </button>
+              <button pButton type="button"
+                (click)="showPackageJSON(extension)"
+                class="p-button-text"
+                title="Show package.json">
+                <i class="pi pi-code"></i>
+              </button>
+              <button pButton type="button"
+                [disabled]="doesNotHaveSettings(extension)"
+                (click)="showExtensionSettings(extension.id)"
+                class="p-button-text"
+                title="Show settings for {{ extension.id }}">
+                <i class="pi pi-cog"></i>
+              </button>
+              <button pButton type="button"
+                [disabled]="doesNotHaveKeybindings(extension)"
+                (click)="showExtensionKeybindings(extension)"
+                class="p-button-text rotate90"
+                title="Show keybindings">
+                <i class="pi pi-calculator"></i>
+              </button>
+              <button pButton type="button"
+                (click)="copyExtensionId(extension.id)"
+                class="p-button-text"
+                title="Copy extension ID">
+                <i class="pi pi-copy"></i>
+              </button>
+            </div>
+          </td>
+          <td>
+            <div class="flex align-items-center">
+              <b>{{ extension.id }}</b>
+            </div>
+          </td>
+          <td>
+            <div class="flex align-items-center">
+              <button pButton type="button"
+                (click)="exploreExtensionPath(extension.extensionPath)"
+                class="p-button-text"
+                title="Open extension path in file explorer">
+                <i class="pi pi-folder-open"></i>
+              </button>
+              <button pButton type="button"
+                (click)="openExtensionPath(extension.extensionPath)"
+                class="p-button-text"
+                title="Open in VSCode {{ extension.extensionPath }}">
+                <i class="pi pi-clone"></i>
+              </button>
+              <button pButton type="button"
+                (click)="copyExtensionPath(extension.extensionPath)"
+                class="p-button-text"
+                title="Copy extension path">
+                <i class="pi pi-copy"></i>
+              </button>
+              <b class="ml-2">{{ extension.extensionPath }}</b>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </main>
+</div>
