@@ -3,7 +3,7 @@
   "displayName": "Extensions Explorer",
   "icon": "images/icon.png",
   "description": "VSCode extensions explorer",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "preview": true,
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
