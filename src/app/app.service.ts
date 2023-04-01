@@ -24,15 +24,21 @@ export class AppService {
     return this._message.asObservable();
   }
 
+  showRunningExtensionsView() {
+    this.vscode.postMessage({
+      command: 'showRunningExtensionsView'
+    });
+  }
+
   reloadExtension() {
     this.vscode.postMessage({
       command: 'reloadExtension'
     });
   }
 
-  showRunningExtensionsView() {
+  checkForExtensionUpdates() {
     this.vscode.postMessage({
-      command: 'showRunningExtensionsView'
+      command: 'checkForExtensionUpdates'
     });
   }
 

@@ -34,6 +34,7 @@
               <span class="ml-2">Actions</span>
               <p-toggleButton [onIcon]="'pi pi-filter-slash'" [offIcon]="'pi pi-filter'" [(ngModel)]="showFilters" class="ml-auto"></p-toggleButton>
               <button pButton type="button" (click)="reloadExtension()" class="ml-2 px-2 py-2" title="Refresh"><i class="pi pi-refresh"></i></button>
+              <button pButton type="button" (click)="checkForExtensionUpdates()" class="ml-2 px-2 py-2" title="Check for Extension Updates"><i class="pi pi-cloud-download"></i></button>
             </div>
           </th>
           <th pResizableColumn style="width: 10%;"><span class="ml-2">ID</span></th>

@@ -79,12 +79,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
+  showRunningExtensionsView() {
+    this.appService.showRunningExtensionsView();
+  }
+
   reloadExtension() {
     this.appService.reloadExtension();
   }
 
-  showRunningExtensionsView() {
-    this.appService.showRunningExtensionsView();
+  checkForExtensionUpdates() {
+    this.appService.checkForExtensionUpdates();
   }
 
   showPackageJSON(extension: any) {

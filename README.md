@@ -7,7 +7,9 @@ Explore installed VSCode extensions in editor:
 - list extensions
   - show extension active status
   - show extension icon
+- show running extensions view
 - show @installed extensions in extensions view
+- check for extension updates
 - search for extension (by id) in extensions view
 - open extension enrty on VSCode Marketplace
 - open extension repository in desktop browser

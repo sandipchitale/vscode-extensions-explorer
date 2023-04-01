@@ -72,12 +72,15 @@ class WebviewInEditor {
           case 'settings':
             this.settings();
             break;
-          case 'reloadExtension':
-            this.loadExtensions();
-            break;
           case 'showRunningExtensionsView':
-              this.showRunningExtensionsView();
-              break;
+            this.showRunningExtensionsView();
+            break;
+          case 'reloadExtension':
+            this.reloadExtensions();
+            break;
+          case 'checkForExtensionUpdates':
+            this.checkForExtensionUpdates();
+            break;
           case 'showPackageJSON':
             this.showPackageJSON(data.extension);
             break;
@@ -137,11 +140,15 @@ class WebviewInEditor {
     });
 
     setTimeout(() => {
-      this.loadExtensions();
+      this.reloadExtensions();
     }, 1000);
   }
 
-  loadExtensions() {
+  showRunningExtensionsView() {
+    vscode.commands.executeCommand('workbench.action.showRuntimeExtensions');
+  }
+
+  reloadExtensions() {
     let extensions: any[] = [];
     let activeExtensions: any[] = [];
     let inactiveextensions: any[] = [];
@@ -181,8 +188,8 @@ class WebviewInEditor {
     });
   }
 
-  showRunningExtensionsView() {
-    vscode.commands.executeCommand('workbench.action.showRuntimeExtensions');
+  checkForExtensionUpdates() {
+    vscode.commands.executeCommand('workbench.extensions.action.checkForUpdates');
   }
 
   async showPackageJSON(extension: any) {
