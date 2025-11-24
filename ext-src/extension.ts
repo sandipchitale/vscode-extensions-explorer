@@ -20,11 +20,11 @@ class WebviewInEditor {
   private static readonly viewType = 'WebviewInEditor';
 
   private readonly panel: vscode.WebviewPanel;
-  private readonly extensionPath: string;
+  private readonly extensionUri: vscode.Uri;
   private readonly builtAppFolder: string;
   private disposables: vscode.Disposable[] = [];
 
-  public static createOrShow(extensionPath: string): WebviewInEditor {
+  public static createOrShow(extensionUri: vscode.Uri): WebviewInEditor {
     const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
     // If we already have a panel, show it.
@@ -32,15 +32,15 @@ class WebviewInEditor {
     if (WebviewInEditor.currentPanel) {
       WebviewInEditor.currentPanel.panel.reveal(column);
     } else {
-      WebviewInEditor.currentPanel = new WebviewInEditor(extensionPath, column || vscode.ViewColumn.One);
+      WebviewInEditor.currentPanel = new WebviewInEditor(extensionUri, column || vscode.ViewColumn.One);
     }
     return WebviewInEditor.currentPanel;
   }
 
   // private uri: vscode.Uri | undefined = undefined;
 
-  private constructor(extensionPath: string, column: vscode.ViewColumn) {
-    this.extensionPath = extensionPath;
+  private constructor(extensionUri: vscode.Uri, column: vscode.ViewColumn) {
+    this.extensionUri = extensionUri;
     this.builtAppFolder = 'dist';
 
     // Create and show a new webview panel
@@ -52,12 +52,12 @@ class WebviewInEditor {
 
       // And restrict the webview to only loading content from our extension's `media` directory.
       localResourceRoots: [
-        vscode.Uri.file(path.join(this.extensionPath, this.builtAppFolder)),
+        vscode.Uri.joinPath(this.extensionUri, this.builtAppFolder),
         vscode.Uri.parse(`http://localhost:${PORT}/`),
       ]
     });
 
-    this.panel.iconPath = vscode.Uri.file(path.join(this.extensionPath, 'images', 'icon.png'));
+    this.panel.iconPath = vscode.Uri.joinPath(this.extensionUri, 'images', 'icon.png');
 
     // Set the webview's initial html content
     this.panel.webview.html = this._getHtmlForWebview();
@@ -176,7 +176,7 @@ class WebviewInEditor {
 
     extensions.forEach((extension) => {
       try {
-        (extension as any).icon = `http://localhost:${PORT}?icon=${vscode.Uri.file(path.join(extension.extensionPath, extension.packageJSON.icon))}`;
+        (extension as any).icon = `http://localhost:${PORT}?icon=${vscode.Uri.joinPath(extension.extensionUri, extension.packageJSON.icon)}`;
       } catch (error) {
         (extension as any).icon = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs';
       }
@@ -257,8 +257,8 @@ class WebviewInEditor {
   }
 
   exploreExtensionsPath() {
-    if (vscode.extensions.all.length > 0 && vscode.extensions.all[0].extensionPath) {
-      vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(path.dirname(vscode.extensions.all[0].extensionPath)));
+    if (vscode.extensions.all.length > 0 && vscode.extensions.all[0].extensionUri) {
+      vscode.commands.executeCommand('revealFileInOS', vscode.Uri.joinPath(vscode.extensions.all[0].extensionUri, '..'));
     }
   }
 
@@ -302,17 +302,16 @@ class WebviewInEditor {
    */
   private _getHtmlForWebview() {
     // path to dist folder
-    const appDistPath = path.join(this.extensionPath, 'dist');
-    const appDistPathUri = vscode.Uri.file(appDistPath);
+    const appDistPathUri = vscode.Uri.joinPath(this.extensionUri, 'dist');
 
     // path as uri
     const baseUri = this.panel.webview.asWebviewUri(appDistPathUri);
 
     // get path to index.html file from dist folder
-    const indexPath = path.join(appDistPath, 'index.html');
+    const indexPathUri = vscode.Uri.joinPath(appDistPathUri, 'index.html');
 
     // read index file from file system
-    let indexHtml = fs.readFileSync(indexPath, { encoding: 'utf8' });
+    let indexHtml = fs.readFileSync(indexPathUri.fsPath, { encoding: 'utf8' });
 
     // update the base URI tag
     indexHtml = indexHtml.replace('<base href="/">', `<base href="${String(baseUri)}/">`);
@@ -362,7 +361,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('vscode-extensions-explorer.show-extensions-explorer', () => {
-      WebviewInEditor.createOrShow(context.extensionPath);
+      WebviewInEditor.createOrShow(context.extensionUri);
     })
   );
 }
